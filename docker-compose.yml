@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  # Seu serviço do Wizarr que você já tem
+  wizarr:
+    image: lscr.io/linuxserver/wizarr:latest
+    container_name: wizarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Sao_Paulo
+    volumes:
+      - /caminho/para/sua/config/wizarr:/config
+    ports:
+      - "5690:5690"
+    restart: unless-stopped
+
+  # ====> NOVO SERVIÇO PARA O SEU BOT <====
+  bot-cobranca:
+    # Se você construir sua própria imagem com um Dockerfile
+    build: ./pasta-do-bot 
+    # Ou se usar uma imagem pronta
+    # image: sua-imagem-de-bot:latest 
+    container_name: bot-cobranca
+    restart: always # Para o bot sempre reiniciar se cair
+    environment:
+      - TELEGRAM_TOKEN=SEU_TOKEN_AQUI
+      - MERCADOPAGO_TOKEN=SEU_TOKEN_DO_MP_AQUI
+      - DATABASE_URL=conexao_com_banco_se_precisar
+    # Não precisa expor portas se o bot só se comunica com a API do Telegram
+    # Mas se precisar receber webhooks, você precisará expor uma porta.
+    ports:
+      - "8443:8443" # Exemplo para receber webhooks na porta 8443
